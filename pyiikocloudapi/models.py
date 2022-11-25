@@ -771,11 +771,11 @@ class MBIdICItemSizeModel(BaseModel):
     prices: MBIdICISPriceModel
     item_modifier_groups: List[MBIdICISItemModifierGroupModel] = Field(alias='itemModifierGroups')
     sku: str
-    size_code: str = Field(alias='sizeCode')
-    size_name: str = Field(aliad='sizeName')
+    size_code: Union[None, str] = Field(alias='sizeCode')
+    size_name: Union[None, str] = Field(aliad='sizeName')
     is_default: Optional[bool] = Field(alias="isDefault")
     portion_weight_grams: float = Field(alias='portionWeightGrams')
-    size_id: str = Field(alias='sizeId')
+    size_id: Union[None, str] = Field(alias='sizeId')
     nutrition_per_hundred_grams: dict = Field(alias='nutritionPerHundredGrams')
     button_image_url: str = Field(alias="buttonImageUrl")
     button_image_cropped_url: str = Field(alias="buttonImageCroppedUrl")
@@ -787,10 +787,10 @@ class MBIdICItemModel(BaseModel):
     description: str
     allergen_groups: List[ICIAllergenGroupModel] = Field(alias='allergenGroups')
     item_id: str = Field(alias='itemId')
-    modofier_schema_id: str = Field(alias='modofierSchemaId')
-    tax_category: MBIdICTaxCategoryModel
-    order_item_type: str
-    item_sizes: List[MBIdICItemSizeModel]
+    modifier_schema_id: Union[None, str] = Field(alias='modifierSchemaId')
+    tax_category: Union[None, MBIdICTaxCategoryModel]
+    order_item_type: Union[None, str]
+    item_sizes: Union[None, List[MBIdICItemSizeModel]]
 
     def __str__(self):
         return self.name
@@ -798,8 +798,8 @@ class MBIdICItemModel(BaseModel):
 
 class MBIdItemCategoryModel(IdNameModel):
     description: str
-    button_image_url: str = Field(alias="buttonImageUrl")
-    header_image_url: str = Field(alias="headerImageUrl")
+    button_image_url: Union[None, str] = Field(alias="buttonImageUrl")
+    header_image_url: Union[None, str] = Field(alias="headerImageUrl")
     items: List[MBIdICItemModel]
 
 
@@ -900,11 +900,28 @@ class BaseRemovalTypesModel(BaseResponseModel):
     removal_types: List[RemovalTypeModel] = Field(alias="removalTypes")
 
 
-
-# Получите подсказки для группы api-logins rms.
 class TipTypeModel(IdNameModel):
     organization_ids: List[str] = Field(alias="organizationIds")
     order_service_types: List[str] = Field(alias="orderServiceTypes")
     payment_types_ids: List[str] = Field(alias="paymentTypesIds")
+
+
 class BaseTipsTypesModel(BaseResponseModel):
     tips_types: List[TipTypeModel] = Field(alias="tipsTypes")
+
+
+class Table(IdNameModel):
+    number: int = Field(alias='number')
+    seatingCapacity: int = Field(alias='seatingCapacity')
+    revision: int = Field(alias='revision')
+    isDelete: bool = Field(alias='isDeleted')
+
+
+class RestaurantSection(IdNameModel):
+    terminalGroupId: str = Field(alias='terminalGroupId')
+    tables: List[Table] = Field(alias='tables')
+
+
+class AvailableRestaurantSections(BaseResponseModel):
+    restaurantSections: List[RestaurantSection] = Field(alias='restaurantSections')
+    revision: int = Field(alias='revision')

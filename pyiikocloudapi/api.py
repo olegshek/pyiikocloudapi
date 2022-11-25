@@ -176,7 +176,7 @@ class BaseAPI:
             data = {}
         result = self.session_s.post(f'{self.base_url}{url}', json=json.dumps(data),
                                      headers=self.headers)
-        print()
+
         response_data: dict = json.loads(result.content)
         if self.__debug:
             print(f"{result.status_code=}\n{response_data=}\n")
@@ -217,22 +217,6 @@ class BaseAPI:
         if include_disabled is not None:
             data["includeDisabled"] = include_disabled
         try:
-            # result = self.session_s.post(f'{self.__base_url}/api/1/organizations', json=json.dumps(data),
-            #                              headers=self.headers)
-            # if len(result.content) == 0:
-            #     raise PostException(self.__class__.__qualname__,
-            #                         self.organizations.__name__,
-            #                         f"Пустой ответ")
-            # out: dict = json.loads(result.content)
-            #
-            # if out.get("errorDescription", None) is not None:
-            #     # raise PostException(self.__class__.__qualname__,
-            #     #                     self.organizations.__name__,
-            #     #                     f"Не удалось получить организации: \n{out}")
-            #     return CustomErrorModel.parse_obj(out)
-            #
-            #
-            # return self.__organizations_ids_model
             response_data = self._post_request(
                 url="/api/1/organizations",
                 data=data,
@@ -240,8 +224,8 @@ class BaseAPI:
             )
             if isinstance(response_data, BaseOrganizationsModel):
                 self.__convert_org_data(data=response_data)
-            return response_data
 
+            return response_data
 
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
@@ -1061,13 +1045,11 @@ class Employees(BaseAPI):
         }
 
         try:
-
             return self._post_request(
                 url="/api/1/employees/couriers",
                 data=data,
                 model_response_data=CouriersModel
             )
-
         except requests.exceptions.RequestException as err:
             raise PostException(self.__class__.__qualname__,
                                 self.couriers.__name__,
@@ -1078,5 +1060,35 @@ class Employees(BaseAPI):
                                 f"Не удалось: \n{err}")
 
 
-class IikoTransport(Orders, Deliveries, Employees, Address, TerminalGroup, Menu, Dictionaries):
+class Reserve(BaseAPI):
+    def available_restaurant_sections(
+            self,
+            terminalGroupIds: List[str],
+            returnSchema: bool = False,
+            revision: int = 0
+    ):
+
+        #     https://api-ru.iiko.services/api/1/reserve/available_restaurant_sections
+        data = {
+            'terminalGroupIds': terminalGroupIds,
+            'returnSchema': returnSchema,
+            'revision': revision
+        }
+
+        try:
+            return self._post_request(
+                url="/api/1/reserve/available_restaurant_sections",
+                data=data,
+                model_response_data=AvailableRestaurantSections
+            )
+        except requests.exceptions.RequestException as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.available_restaurant_sections.__name__,
+                                f"{err}")
+        except TypeError as err:
+            raise PostException(self.__class__.__qualname__,
+                                self.available_restaurant_sections.__name__,
+                                f"{err}")
+
+class IikoTransport(Orders, Deliveries, Employees, Address, TerminalGroup, Menu, Dictionaries, Reserve):
     pass
