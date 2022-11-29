@@ -4,7 +4,7 @@ import uuid
 from datetime import date, timedelta
 from datetime import datetime
 import requests
-from typing import Optional, Union, List
+import pickle
 
 from pyiikocloudapi.decorators import experimental
 from pyiikocloudapi.exception import CheckTimeToken, SetSession, TokenException, PostException, ParamSetException
@@ -606,24 +606,13 @@ class Address(BaseAPI):
 
 
 class Orders(BaseAPI):
-    def order_create(self, organization_id: str, terminal_group_id: str, order: dict,
-                     create_order_settings: Optional[int] = None, ) -> Union[
-        CustomErrorModel, BaseCreatedOrderInfoModel]:
-        """"""
-
-        data = {
-            "organizationIds": organization_id,
-            "terminalGroupId": terminal_group_id,
-            "order": order,
-        }
-        if create_order_settings is not None:
-            data["createOrderSettings"] = create_order_settings
-
+    def order_create(self, order: OrderCreateRequestModel) -> \
+            Union[CustomErrorModel, BaseCreatedOrderInfoModel]:
         try:
 
             return self._post_request(
                 url="/api/1/order/create",
-                data=data,
+                data=order.dict(),
                 model_response_data=BaseCreatedOrderInfoModel
 
             )
@@ -668,7 +657,7 @@ class Orders(BaseAPI):
             return self._post_request(
                 url="/api/1/deliveries/by_id",
                 data=data,
-                model_response_data=ByIdModel
+                model_response_data=OrderResponseModel
             )
 
         except requests.exceptions.RequestException as err:
@@ -1089,6 +1078,7 @@ class Reserve(BaseAPI):
             raise PostException(self.__class__.__qualname__,
                                 self.available_restaurant_sections.__name__,
                                 f"{err}")
+
 
 class IikoTransport(Orders, Deliveries, Employees, Address, TerminalGroup, Menu, Dictionaries, Reserve):
     pass

@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel, Field
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Literal
 
 
 class IdNameModel(BaseModel):
@@ -284,7 +284,7 @@ class ErrorInfoModel(BaseModel):
     additional_data: Optional[Union[str, list]] = Field(alias="additionalData")
 
 
-class ByOrderItemModel(BaseModel):
+class OrderRetrieveModel(BaseModel):
     id: str
     external_number: Optional[str] = Field(alias='externalNumber')
     organization_id: str = Field(alias='organizationId')
@@ -294,18 +294,19 @@ class ByOrderItemModel(BaseModel):
     order: Optional[CreatedDeliveryOrderModel]
 
     def get_by_courier_id(self, courier_id: str):
-        # return next(i for i in self.orders if i.order.courier_info is not None and str(i.order.courier_info.courier.id) == courier_id)
+        return self if \
+            self.order.courier_info is not None and \
+            self.order.courier_info.courier.id == courier_id else \
+            None
 
-        return self if self.order.courier_info is not None and self.order.courier_info.courier.id == courier_id else None
 
-
-class ByIdModel(BaseResponseModel):
-    orders: Optional[List[ByOrderItemModel]]
+class OrderResponseModel(BaseResponseModel):
+    orders: Optional[List[OrderRetrieveModel]]
 
 
 class OrdersByOrganizationsModel(BaseModel):
     organization_id: str = Field(alias='organizationId')
-    orders: Optional[List[ByOrderItemModel]]
+    orders: Optional[List[OrderRetrieveModel]]
 
     def get_by_courier_name(self, courier_name: str):
         return next(i for i in self.orders if
@@ -878,6 +879,7 @@ class PaymentTypeModel(IdNameModel):
     payment_type_kind: Optional[str] = Field(alias='paymentTypeKind')
     terminal_groups: List[TerminalGroupItemModel] = Field(alias='terminalGroups')
 
+
 class BasePaymentTypesModel(BaseResponseModel):
     payment_types: List[PaymentTypeModel] = Field(alias='paymentTypes')
 
@@ -925,3 +927,132 @@ class RestaurantSection(IdNameModel):
 class AvailableRestaurantSections(BaseResponseModel):
     restaurantSections: List[RestaurantSection] = Field(alias='restaurantSections')
     revision: int = Field(alias='revision')
+
+
+class BaseCreateRequestModel(BaseModel):
+    organizationId: str
+
+
+class OrderCustomerCreateModel(BaseModel):
+    id: Optional[str]
+    name: Optional[str] = Field(max_length=60)
+    surname: Optional[str] = Field(max_length=60)
+    comment: Optional[str] = Field(max_length=60)
+    birthdate: Optional[str]
+    email: Optional[str]
+    shouldReceiveOrderStatusNotifications: Optional[bool]
+    gender: Literal['NotSpecified', 'Male', 'Female'] = Field(default='NotSpecified')
+    type: Literal['regular', 'one-time'] = Field(default='one-time')
+
+
+class OrderGuestCreateModel(BaseModel):
+    count: int
+
+
+class OrderItemModifierModel(BaseModel):
+    productId: str
+    amount: int
+
+
+class OrderItemCreateModel(BaseModel):
+    productId: str
+    amount: float
+    productGroupId: Optional[str]
+    price: Optional[float]
+    positionId: Optional[str]
+
+
+class OrderComboCreateModel(BaseModel):
+    id: str
+    name: str
+    amount: int
+    price: float
+    sourceId: str
+    programId: Optional[str]
+
+
+class OrderPaymentAdditionalData(BaseModel):
+    credential: str
+    searchScope: Literal[
+        'Reserved',
+        'Phone',
+        'CardNumber',
+        'CardTrack',
+        'PaymentToken',
+        'FindFaceId'
+    ]
+    type: Literal['iikoCard'] = Field(default='iikoCard')
+
+
+class OrderPaymentCreateModel(BaseModel):
+    paymentTypeKind: Literal['Cash', 'Card', 'IikoCard', 'External']
+    sum: float
+    paymentTypeId: str
+    isProcessedExternally: bool = Field(default=True)
+    paymentAdditionalData: Optional[OrderPaymentAdditionalData]
+    isFiscalizedExternally: bool = Field(default=True)
+
+
+class PaymentAdditionalDataCreateModel(BaseModel):
+    credential: str
+    searchScope: str
+    type: Literal['IikoCard'] = Field(default='IikoCard')
+
+
+class OrderTipCreateModel(BaseModel):
+    paymentTypeKind: Literal['Cash', 'Card', 'External']
+    tipsTypeId: str
+    sum: float
+    paymentTypeId: str
+    isProcessedExternally: bool = Field(default=True)
+    paymentAdditionalData: Optional[PaymentAdditionalDataCreateModel]
+    isFiscalizedExternally: bool = Field(default=True)
+
+
+class DiscountCard(BaseModel):
+    track: str
+
+
+class Discount(BaseModel):
+    discountTypeId: str
+    sum: float
+    selectivePositions: Optional[List[str]]
+    type: Literal['RMS', 'iikoCard']
+
+
+class DiscountsInfo(BaseModel):
+    card: Optional[DiscountCard]
+    discounts: Optional[List[Discount]]
+
+
+class IikoCard5Info(BaseModel):
+    coupon: Optional[str]
+    applicableManualConditions: Optional[str]
+
+
+class OrderCreateModel(BaseModel):
+    id: Optional[str]
+    externalNumber: Optional[str] = Field(max_length=50)
+    tableIds: Optional[str]
+    customer: Optional[OrderCustomerCreateModel]
+    phone: Optional[str]
+    guests: Optional[List[OrderGuestCreateModel]]
+    tabName: Optional[str]
+    items: List[OrderItemCreatedModel]
+    combos: Optional[List[OrderComboCreateModel]]
+    payments: Optional[List[OrderPaymentCreateModel]]
+    tips: Optional[List[OrderTipCreateModel]]
+    sourceKey: Optional[str]
+    discountsInfo: Optional[List[DiscountsInfo]]
+    iikoCard5Info: Optional[List[IikoCard5Info]]
+    orderTypeId: Optional[str]
+
+
+class CreateOrderSettings(BaseModel):
+    transportToFrontTimeout: Optional[int]
+
+
+class OrderCreateRequestModel(BaseCreateRequestModel):
+    terminalGroupId: str
+    order: OrderCreateModel
+    createOrderSettings: Optional[CreateOrderSettings]
