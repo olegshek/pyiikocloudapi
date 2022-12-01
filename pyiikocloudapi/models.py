@@ -715,7 +715,7 @@ class BaseNomenclatureModel(BaseResponseModel):
     revision: int
 
     def __str__(self):
-        return self.revision
+        return str(self.revision)
 
 
 class BaseMenuModel(BaseResponseModel):

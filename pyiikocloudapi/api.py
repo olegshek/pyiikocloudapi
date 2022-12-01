@@ -4,7 +4,6 @@ import uuid
 from datetime import date, timedelta
 from datetime import datetime
 import requests
-import pickle
 
 from pyiikocloudapi.decorators import experimental
 from pyiikocloudapi.exception import CheckTimeToken, SetSession, TokenException, PostException, ParamSetException
