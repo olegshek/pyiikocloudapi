@@ -704,6 +704,47 @@ class Orders(BaseAPI):
                                  self.add_items_to_order.__name__,
                                  f"Не удалось: \n{err}")
 
+    def change_order_payments(self, data: OrderPaymentsChangeRequestModel):
+        # https://api-ru.iiko.services/api/1/order/change_payments
+
+        try:
+
+            return self._post_request(
+                url="/api/1/order/change_payments",
+                data=data.dict(),
+                model_response_data=BaseResponseModel
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.change_order_payments.__name__,
+                                 f"Не удалось получить заказы: \n{err}")
+        except TypeError as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.change_order_payments.__name__,
+                                 f"Не удалось: \n{err}")
+
+    def init_orders_by_tables(self, data: OrderInitByTablesRequestModel):
+        # https://api-ru.iiko.services/api/1/order/init_by_table
+
+        try:
+
+            return self._post_request(
+                url="/api/1/order/init_by_table",
+                data=data.dict(),
+                model_response_data=BaseResponseModel
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.init_orders_by_tables.__name__,
+                                 f"Не удалось получить заказы: \n{err}")
+        except TypeError as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.init_orders_by_tables.__name__,
+                                 f"Не удалось: \n{err}")
+
+
 class Deliveries(BaseAPI):
     def delivery_create(self, organization_id: str, order: dict, terminal_group_id: str = None,
                         create_order_settings: Optional[int] = None, ) -> Union[

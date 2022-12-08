@@ -1082,9 +1082,8 @@ class OrderChequeAdditionalInfo(BaseModel):
     phone: Optional[str]
 
 
-class OrderCloseRequestModel(BaseModel):
+class OrderCloseRequestModel(BaseCreateRequestModel):
     chequeAdditionalInfo: Optional[OrderChequeAdditionalInfo]
-    organizationId: str
     orderId: str
 
 
@@ -1092,3 +1091,14 @@ class OrderAddItemsRequestModel(BaseCreateRequestModel):
     orderId: str
     items: List[OrderItemCreatedModel]
     combos: Optional[List[OrderComboCreateModel]]
+
+
+class OrderPaymentsChangeRequestModel(BaseCreateRequestModel):
+    orderId: str
+    payments: List[OrderPaymentCreateModel]
+    tips: Optional[List[OrderTipCreateModel]]
+
+
+class OrderInitByTablesRequestModel(BaseCreateRequestModel):
+    terminalGroupId: str
+    tableIds: List[str]
