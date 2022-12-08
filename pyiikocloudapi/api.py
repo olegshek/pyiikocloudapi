@@ -624,50 +624,85 @@ class Orders(BaseAPI):
                             self.order_create.__name__,
                             f"Не удалось создать заказ из за: \n{err}")
 
-    def by_id(self,
-              organization_id: List[str],
-              order_ids: list,
-              source_keys: list = None
-              ):
-        """
-        Получить заказы по идентификаторам.
-
-        :param organization_id: Organization ID
-        :param order_ids: list orders id
-        :param source_keys:
-        :return:
-        """
-        # https://api-ru.iiko.services/api/1/deliveries/by_id
-        if not isinstance(order_ids, list):
-            raise TypeError("type order_ids != list")
-
-        data = {
-            "organizationIds": organization_id,
-            "orderIds": order_ids,
-        }
-
-        if source_keys is not None:
-            if not isinstance(source_keys, list):
-                raise TypeError("type source_keys != list")
-            data["sourceKeys"] = source_keys
+    def get_orders_by_ids(self, data: OrderRetrieveByIdsRequestModel):
+        # https://api-ru.iiko.services/api/1/order/by_id
 
         try:
 
             return self._post_request(
-                url="/api/1/deliveries/by_id",
-                data=data,
+                url="/api/1/order/by_id",
+                data=data.dict(),
                 model_response_data=OrderResponseModel
             )
 
         except requests.exceptions.RequestException as err:
             raise TokenException(self.__class__.__qualname__,
-                                 self.by_id.__name__,
+                                 self.get_orders_by_ids.__name__,
                                  f"Не удалось получить заказы: \n{err}")
         except TypeError as err:
             raise TokenException(self.__class__.__qualname__,
-                                 self.by_id.__name__,
+                                 self.get_orders_by_ids.__name__,
                                  f"Не удалось: \n{err}")
 
+    def get_orders_by_tables(self, data: OrderRetrieveByTablesRequestModel):
+        # https://api-ru.iiko.services/api/1/order/by_table
+
+        try:
+
+            return self._post_request(
+                url="/api/1/order/by_table",
+                data=data.dict(),
+                model_response_data=OrderResponseModel
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.get_orders_by_tables.__name__,
+                                 f"Не удалось получить заказы: \n{err}")
+        except TypeError as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.get_orders_by_tables.__name__,
+                                 f"Не удалось: \n{err}")
+
+    def close_order(self, data: OrderCloseRequestModel):
+        # https://api-ru.iiko.services/api/1/order/close
+
+        try:
+
+            return self._post_request(
+                url="/api/1/order/close",
+                data=data.dict(),
+                model_response_data=BaseResponseModel
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.close_order.__name__,
+                                 f"Не удалось получить заказы: \n{err}")
+        except TypeError as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.close_order.__name__,
+                                 f"Не удалось: \n{err}")
+
+    def add_items_to_order(self, data: OrderAddItemsRequestModel):
+        # https://api-ru.iiko.services/api/1/order/add_items
+
+        try:
+
+            return self._post_request(
+                url="/api/1/order/add_items",
+                data=data.dict(),
+                model_response_data=BaseResponseModel
+            )
+
+        except requests.exceptions.RequestException as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.add_items_to_order.__name__,
+                                 f"Не удалось получить заказы: \n{err}")
+        except TypeError as err:
+            raise TokenException(self.__class__.__qualname__,
+                                 self.add_items_to_order.__name__,
+                                 f"Не удалось: \n{err}")
 
 class Deliveries(BaseAPI):
     def delivery_create(self, organization_id: str, order: dict, terminal_group_id: str = None,

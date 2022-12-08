@@ -1056,3 +1056,39 @@ class OrderCreateRequestModel(BaseCreateRequestModel):
     terminalGroupId: str
     order: OrderCreateModel
     createOrderSettings: Optional[CreateOrderSettings]
+
+
+class OrderRetrieveBaseModel(BaseModel):
+    sourceKeys: Optional[List[str]]
+    organizationIds: List[str]
+
+
+class OrderRetrieveByIdsRequestModel(OrderRetrieveBaseModel):
+    orderIds: Optional[List[str]]
+    posOrderIds: Optional[List[str]]
+
+
+class OrderRetrieveByTablesRequestModel(OrderRetrieveBaseModel):
+    tableIds: List[str]
+    statuses: Optional[Literal['New', 'Bill', 'Closed', 'Deleted']]
+    dateFrom: Optional[str]
+    dateTo: Optional[str]
+
+
+class OrderChequeAdditionalInfo(BaseModel):
+    needReceipt: bool
+    email: Optional[str]
+    settlementPlace: Optional[str]
+    phone: Optional[str]
+
+
+class OrderCloseRequestModel(BaseModel):
+    chequeAdditionalInfo: Optional[OrderChequeAdditionalInfo]
+    organizationId: str
+    orderId: str
+
+
+class OrderAddItemsRequestModel(BaseCreateRequestModel):
+    orderId: str
+    items: List[OrderItemCreatedModel]
+    combos: Optional[List[OrderComboCreateModel]]
