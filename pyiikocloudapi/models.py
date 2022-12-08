@@ -513,7 +513,7 @@ class OrderDetailWaiterModel(IdNameModel):
 
 
 class OrderItemCreatedModel(BaseModel):
-    product: IdNameModel
+    productId: str
     modifiers: Optional[List[dict]]
     price: float
     cost: float
@@ -543,7 +543,7 @@ class CreatedOrderInfoModel(BaseModel):
     timestamp: int
     creation_status: Optional[str] = Field(alias='creationStatus')
     error_info: Optional[ErrorInfoModel] = Field(alias="errorInfo")
-    order: CreateOrderDetailModel
+    order: Optional[CreateOrderDetailModel]
 
 
 class CreateDeliveryOrderInfoModel(CreatedOrderInfoModel):
@@ -1033,7 +1033,7 @@ class IikoCard5Info(BaseModel):
 class OrderCreateModel(BaseModel):
     id: Optional[str]
     externalNumber: Optional[str] = Field(max_length=50)
-    tableIds: Optional[str]
+    tableIds: Optional[List[str]]
     customer: Optional[OrderCustomerCreateModel]
     phone: Optional[str]
     guests: Optional[List[OrderGuestCreateModel]]
