@@ -228,14 +228,14 @@ class OrderProductItemModel(BaseModel):
 
 class CreatedDeliveryOrderModel(BaseModel):
     parent_delivery_id: Optional[str] = Field(alias="parentDeliveryId")
-    customer: CustomerModel
-    phone: str
+    customer: Optional[CustomerModel]
+    phone: Optional[str]
     # TODO(Kebrick): дописать модель DeliveryPointModel для ключа delivery_point
     delivery_point: Optional[dict] = Field(alias="deliveryPoint")
     status: str
     cancel_info: Optional[CancelInfoModel] = Field(alias="cancelInfo")
     courier_info: Optional[CourierInfoModel] = Field(alias="courierInfo")
-    complete_before: str = Field(alias="completeBefore")
+    complete_before: Optional[str] = Field(alias="completeBefore")
     when_created: str = Field(alias="whenCreated")
     when_confirmed: Optional[str] = Field(alias="whenConfirmed")
     when_printed: Optional[str] = Field(alias="whenPrinted")
@@ -247,8 +247,8 @@ class CreatedDeliveryOrderModel(BaseModel):
     marketing_source: Optional[MarketingSourceOrderModel] = Field(alias="marketingSource")
     delivery_duration: Optional[int] = Field(alias="deliveryDuration")
     index_in_courier_route: Optional[int] = Field(alias="indexInCourierRoute")
-    cooking_start_time: str = Field(alias="cookingStartTime")
-    is_deleted: bool = Field(alias="isDeleted")
+    cooking_start_time: Optional[str] = Field(alias="cookingStartTime")
+    is_deleted: Optional[bool] = Field(alias="isDeleted")
     when_received_by_api: Optional[str] = Field(alias="whenReceivedByApi")
     when_received_from_front: Optional[str] = Field(alias="whenReceivedFromFront")
     moved_from_delivery_id: Optional[str] = Field(alias="movedFromDeliveryId")
@@ -515,13 +515,12 @@ class OrderDetailWaiterModel(IdNameModel):
 class OrderItemCreatedModel(BaseModel):
     productId: str
     modifiers: Optional[List[dict]]
-    price: float
-    cost: float
-    price_predefined: bool = Field(alias="pricePredefined")
+    price: Optional[float]
+    cost: Optional[float]
     position_id: Optional[str] = Field(alias="positionId")
     tax_percent: Optional[float] = Field(alias="taxPercent")
     type: str
-    status: str
+    status: Optional[str]
     deleted: Optional[OrderItemDeletedModel]
     amount: float
     comment: Optional[str]
@@ -919,9 +918,20 @@ class Table(IdNameModel):
     isDelete: bool = Field(alias='isDeleted')
 
 
+class TableElement(BaseModel):
+    tableId: str
+
+
+class RestaurantSectionSchema(BaseModel):
+    width: int
+    height: int
+    tableElements: List[TableElement]
+
+
 class RestaurantSection(IdNameModel):
     terminalGroupId: str = Field(alias='terminalGroupId')
     tables: List[Table] = Field(alias='tables')
+    section_schema: Optional[RestaurantSectionSchema] = Field(title='schema', alias='schema')
 
 
 class AvailableRestaurantSections(BaseResponseModel):
@@ -1036,7 +1046,7 @@ class OrderCreateModel(BaseModel):
     tableIds: Optional[List[str]]
     customer: Optional[OrderCustomerCreateModel]
     phone: Optional[str]
-    guests: Optional[List[OrderGuestCreateModel]]
+    guests: Optional[OrderGuestCreateModel]
     tabName: Optional[str]
     items: List[OrderItemCreatedModel]
     combos: Optional[List[OrderComboCreateModel]]
@@ -1070,7 +1080,7 @@ class OrderRetrieveByIdsRequestModel(OrderRetrieveBaseModel):
 
 class OrderRetrieveByTablesRequestModel(OrderRetrieveBaseModel):
     tableIds: List[str]
-    statuses: Optional[Literal['New', 'Bill', 'Closed', 'Deleted']]
+    statuses: Optional[List[Literal['New', 'Bill', 'Closed', 'Deleted']]]
     dateFrom: Optional[str]
     dateTo: Optional[str]
 

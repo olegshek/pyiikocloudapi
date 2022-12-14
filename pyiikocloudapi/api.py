@@ -173,10 +173,15 @@ class BaseAPI:
     def _post_request(self, url: str, data: dict = None, model_response_data=None, model_error=CustomErrorModel):
         if data is None:
             data = {}
+
+        print(json.dumps(data))
         result = self.session_s.post(f'{self.base_url}{url}', json=json.dumps(data),
                                      headers=self.headers)
 
         response_data: dict = json.loads(result.content)
+
+        print(json.dumps(response_data))
+
         if self.__debug:
             print(f"{result.status_code=}\n{response_data=}\n")
 
@@ -730,7 +735,7 @@ class Orders(BaseAPI):
         try:
 
             return self._post_request(
-                url="/api/1/order/init_by_table",
+                url="/api/1/order/init_by_posOrder",
                 data=data.dict(),
                 model_response_data=BaseResponseModel
             )
