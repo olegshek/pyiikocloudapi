@@ -735,7 +735,7 @@ class Orders(BaseAPI):
         try:
 
             return self._post_request(
-                url="/api/1/order/init_by_posOrder",
+                url="/api/1/order/by_table",
                 data=data.dict(),
                 model_response_data=BaseResponseModel
             )
